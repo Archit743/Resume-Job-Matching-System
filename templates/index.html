@@ -1,40 +1,289 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login & Signup</title>
-    <style>
-        body { font-family: Arial, sans-serif; }
-        .form-container { margin: 20px; padding: 20px; border: 1px solid #ccc; width: 300px; }
-        input[type="text"], input[type="password"], input[type="email"], input[type="tel"] {
-            width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px;
+{% extends 'base.html' %}
+
+{% block head %}
+ <style> 
+    body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to bottom right, white, #E6F7F7, white);
+}
+
+.progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: #E6F7F7;
+    z-index: 50;
+}
+
+.progress {
+    height: 100%;
+    background: #2D7A7B;
+    width: 0;
+    transition: width 0.2s;
+}
+
+.header {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 40;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(5px);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: box-shadow 0.3s;
+}
+
+.header.scrolled {
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.container {
+    display: flex;
+    justify-content: space-between;
+    width: 90%;
+    margin: auto;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: #1A202C;
+    text-decoration: none;
+}
+
+.logo i {
+    color: #2D7A7B;
+    font-size: 24px;
+    margin-right: 10px;
+}
+
+
+
+.nav-buttons {
+    display: flex;
+    gap: 10px; /* Adds space between buttons */
+}
+
+
+
+.login {
+    background: #2D7A7B;
+    color: white;
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s;
+}
+
+.login:hover {
+    background: #236363;
+    transform: scale(1.05);
+}
+
+
+.signup {
+    background: #2D7A7B;
+    color: white;
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s;
+}
+
+.signup:hover {
+    background: #236363;
+    transform: scale(1.05);
+}
+
+.main-content {
+    text-align: center;
+    padding: 100px 20px;
+}
+
+.hero h1 {
+    font-size: 40px;
+    color: #1A202C;
+    margin-bottom: 10px;
+}
+
+.hero p {
+    color: #4A5568;
+    font-size: 18px;
+}
+
+.cta {
+    padding: 15px 30px;
+    background: #2D7A7B;
+    color: white;
+    font-size: 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.cta:hover {
+    background: #236363;
+    transform: scale(1.05);
+}
+
+.stats {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    margin-top: 50px;
+}
+
+.stats div {
+    text-align: center;
+}
+
+.stats span {
+    font-size: 30px;
+    font-weight: bold;
+    color: #2D7A7B;
+}
+
+.featured {
+    margin-top: 50px;
+}
+
+.featured h2 {
+    color: #1A202C;
+}
+
+.logos {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    opacity: 0.5;
+}
+
+.chat-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #2D7A7B;
+    color: white;
+    padding: 15px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.chat-button:hover {
+    background: #236363;
+    transform: scale(1.1);
+}
+
+.wave-container {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 80px;
+    overflow: hidden;
+}
+
+.wave {
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(transparent 50%, rgba(45, 122, 123, 0.1));
+    animation: waveMove 10s linear infinite;
+}
+
+@keyframes waveMove {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+ </style>
+ <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+
+{% endblock %}
+
+{% block body %}
+
+    <div class="progress-bar">
+        <div class="progress"></div>
+    </div>
+
+    <header class="header">
+        <div class="container">
+            <a href="/" class="logo">
+                <i class="fas fa-file-alt"></i>
+                <span>AI Resume Builder</span>
+            </a>
+                <div class="nav-buttons">
+                <button class="login"><a href="{{ url_for('main.signup') }}" class="nav-buttons {% if request.endpoint == 'signup' %}active{% endif %}">
+                    Signup/Login
+                </a></button>
+</div>
+
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="hero">
+            <h1>AI Resume Builder</h1>
+            <p><i class="fas fa-check-circle"></i> Create professional, ATS-friendly resumes with AI-powered tools</p>
+            <p><i class="fas fa-check-circle"></i> Tailored suggestions based on your industry and experience</p>
+            <p><i class="fas fa-check-circle"></i> Professional templates and real-time preview</p>
+            <button class="cta">Get Started Now</button>
+        </div>
+
+        <div class="stats">
+            <div>
+                <span>10,000+</span>
+                <p>Resumes Created</p>
+            </div>
+            <div>
+                <span>95%</span>
+                <p>Success Rate</p>
+            </div>
+            <div>
+                <span>24/7</span>
+                <p>AI Support</p>
+            </div>
+        </div>
+    </main>
+
+    <button class="chat-button">
+        <i class="fas fa-comments"></i>
+    </button>
+
+    <div class="wave-container">
+        <div class="wave"></div>
+    </div>
+
+    <script> 
+        document.addEventListener("DOMContentLoaded", function () {
+    const progressBar = document.querySelector(".progress");
+    const header = document.querySelector(".header");
+
+    window.addEventListener("scroll", function () {
+        let scrollY = window.scrollY;
+        let totalScroll = document.documentElement.scrollHeight - window.innerHeight;
+        let scrollProgress = (scrollY / totalScroll) * 100;
+        progressBar.style.width = `${scrollProgress}`;
+
+        if (scrollY > 0) {
+            header.classList.add("scrolled");
+        } else {
+            header.classList.remove("scrolled");
         }
-        button { width: 100%; padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        button:hover { background-color: #45a049; }
-    </style>
-</head>
-<body>
-    <div class="form-container">
-        <h2>Signup</h2>
-        <form id="signupForm">
-            <input type="text" id="name" placeholder="Name" required>
-            <input type="email" id="email" placeholder="Email" required>
-            <input type="tel" id="phone" placeholder="Phone" required>
-            <input type="password" id="password" placeholder="Password" required>
-            <button type="submit">Sign Up</button>
-        </form>
-    </div>
+    });
+});
+    </script>
 
-    <div class="form-container">
-        <h2>Login</h2>
-        <form id="loginForm">
-            <input type="text" id="email_or_phone" placeholder="Email or Phone" required>
-            <input type="password" id="login_password" placeholder="Password" required>
-            <button type="submit">Login</button>
-        </form>
-    </div>
-
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-</body>
-</html>
+{% endblock %}

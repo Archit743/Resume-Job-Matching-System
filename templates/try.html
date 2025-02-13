@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9fafb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+        .toggle-buttons {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        .toggle-buttons button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+        }
+        .toggle-buttons button.active {
+            background-color: #ddd;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #aaa;
+        }
+        .message {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="toggle-buttons">
+            <button id="signInBtn" class="active">Sign In</button>
+            <button id="signUpBtn">Sign Up</button>
+        </div>
+        <form id="authForm">
+            <div id="nameField" style="display: none;">
+                <input type="text" id="name" name="name" placeholder="Enter your name">
+            </div>
+            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            <button type="submit" id="submitButton">Sign In</button>
+        </form>
+        <div id="message" class="message"></div>
+    </div>
+    
+    <script>
+        let isSignIn = true;
+        const signInBtn = document.getElementById("signInBtn");
+        const signUpBtn = document.getElementById("signUpBtn");
+        const nameField = document.getElementById("nameField");
+        const authForm = document.getElementById("authForm");
+        const submitButton = document.getElementById("submitButton");
+        const messageDiv = document.getElementById("message");
+
+        signInBtn.addEventListener("click", () => {
+            isSignIn = true;
+            nameField.style.display = "none";
+            submitButton.textContent = "Sign In";
+            signInBtn.classList.add("active");
+            signUpBtn.classList.remove("active");
+            messageDiv.textContent = "";
+        });
+
+        signUpBtn.addEventListener("click", () => {
+            isSignIn = false;
+            nameField.style.display = "block";
+            submitButton.textContent = "Sign Up";
+            signUpBtn.classList.add("active");
+            signInBtn.classList.remove("active");
+            messageDiv.textContent = "";
+        });
+
+        authForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            messageDiv.textContent = "";
+            messageDiv.className = "message";
+            submitButton.disabled = true;
+            
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const name = document.getElementById("name").value;
+            
+            try {
+                let url = isSignIn ? "/api/signin" : "/api/signup";
+                let body = isSignIn ? { email, password } : { name, email, password };
+                
+                let response = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body),
+                });
+                
+                if (!response.ok) throw new Error(isSignIn ? "Invalid credentials" : "Could not create account");
+                
+                messageDiv.textContent = isSignIn ? "Successfully signed in!" : "Account created successfully!";
+                messageDiv.classList.add("success");
+                setTimeout(() => window.location.href = "/", 1500);
+            } catch (err) {
+                messageDiv.textContent = err.message;
+                messageDiv.classList.add("error");
+            } finally {
+                submitButton.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

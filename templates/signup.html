@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Signup</title>
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f4f4f4; }
+        .container { width: 320px; padding: 20px; background: white; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); text-align: center; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
+        button { width: 100%; padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #45a049; }
+        .switch { color: blue; cursor: pointer; text-decoration: underline; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="signupForm">
+            <h2>Signup</h2>
+            <input type="text" id="name" placeholder="Name" required>
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="tel" id="phone" placeholder="Phone" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button onclick="submitSignup()">Sign Up</button>
+            <p class="switch" onclick="toggleForm('loginForm')">Already have an account? Login</p>
+        </div>
+        
+        <div id="loginForm" style="display: none;">
+            <h2>Login</h2>
+            <input type="text" id="email_or_phone" placeholder="Email or Phone" required>
+            <input type="password" id="login_password" placeholder="Password" required>
+            <button onclick="submitLogin()">Login</button>
+            <p class="switch" onclick="toggleForm('signupForm')">Don't have an account? Signup</p>
+        </div>
+    </div>
+
+    <script>
+        function toggleForm(formId) {
+            document.getElementById('signupForm').style.display = formId === 'signupForm' ? 'block' : 'none';
+            document.getElementById('loginForm').style.display = formId === 'loginForm' ? 'block' : 'none';
+        }
+
+        function submitSignup() {
+    const userData = {
+        name: document.getElementById('name').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        password: document.getElementById('password').value.trim()
+    };
+
+    fetch('/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData),
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        if (data.success) {
+            // Manually clear input fields
+            document.getElementById('name').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('password').value = '';
+
+            toggleForm('loginForm'); // Switch to login form after signup
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+
+        function submitLogin() {
+            const loginData = {
+                email_or_phone: document.getElementById('email_or_phone').value.trim(),
+                password: document.getElementById('login_password').value.trim()
+            };
+            
+            fetch('/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(loginData),
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/home'; // Redirect to home page on successful login
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Builder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: #f0f2f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: #ffffff;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .main-content {
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .upload-section, .create-section {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .upload-section:hover, .create-section:hover {
+            transform: translateY(-5px);
+        }
+
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .upload-area {
+            border: 2px dashed #ccc;
+            padding: 40px;
+            margin: 20px 0;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .upload-area.dragover {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #45a049;
+        }
+
+        .create-section .btn {
+            margin-top: 20px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .accepted-formats {
+            margin-top: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <h1>AI Resume Builder</h1>
+                <div class="profile-section">
+                    <div class="profile-image">
+                        <span>👤</span>
+                    </div>
+                    <span id="userName">User</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="upload-section">
+                <h2 class="section-title">Upload Existing Resume</h2>
+                <div class="upload-area" id="dropZone">
+                    <p>Drag & Drop your resume here</p>
+                    <p>or</p>
+                    <input type="file" id="fileInput" name="file" accept=".pdf,.jpg,.jpeg,.png">
+                    <button class="btn" onclick="document.getElementById('fileInput').click()">
+                        Browse Files
+                    </button>
+                </div>
+                <p class="accepted-formats">Accepted formats: PDF, JPG, PNG</p>
+            </div>
+
+            <div class="create-section">
+                <h2 class="section-title">Create New Resume</h2>
+                <p>Don't have a resume? Create one from scratch!</p>
+                <button class="btn" onclick="redirectToBuilder()">
+                    Build Your Resume
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            handleFiles(files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+        if (files.length > 0) {
+            const file = files[0];
+            const validTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+
+            if (validTypes.includes(file.type)) {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                })
+                .catch(error => console.error('Error:', error));
+            } else {
+                alert('Please upload a PDF or image file (JPG/PNG).');
+            }
+        }
+    }
+
+        function redirectToBuilder() {
+            window.location.href = 'your-builder-page.html'; // Replace with your actual URL
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const userName = 'John Doe'; // Replace with your actual user data
+            document.getElementById('userName').textContent = userName;
+        });
+    </script>
+</body>
+</html>
