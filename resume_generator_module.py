@@ -205,48 +205,56 @@ class ResumeGenerator:
     
     def _create_experience_section(self, experiences):
         elements = []
-        elements.append(Paragraph('Work Experience', self.styles['SectionHeading']))
-        
-        # Handle the case where experiences might be a dict with arrays
+        elements.append(Paragraph('Professional Experience', self.styles['SectionHeading']))
+        print("Creating experience section with data:", experiences)  # Debug print
         if isinstance(experiences, dict):
-            # Zip the arrays together to create individual experience entries
-            for company, position, dates, description in zip(
-                experiences.get('company_name', []),
-                experiences.get('position', []),
-                experiences.get('work_dates', []),
-                experiences.get('work_description', [])
-            ):
-                if not all([company, position, dates, description]):
-                    continue
-                    
-                # Split dates if they exist
-                start_date, end_date = dates.split(' - ') if ' - ' in dates else (dates, 'Present')
-                
-                exp_table_data = [
-                    [Paragraph(f"<b>{position}</b>", self.styles['Normal']),
-                     Paragraph(f"{start_date} - {end_date}", self.styles['Normal'])],
-                    [Paragraph(f"{company}", self.styles['Normal']), '']
-                ]
-                
-                exp_table = Table(exp_table_data, colWidths=[4*inch, 2*inch])
-                exp_table.setStyle(TableStyle([
-                    ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-                    ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-                ]))
-                elements.append(exp_table)
-                
-                # Handle responsibilities/description
-                responsibilities = description.split('\n')
-                bullets = []
-                for resp in responsibilities:
-                    if resp.strip():
-                        enhanced_resp = self.enhance_bullet_points(resp.strip(), position)
-                        bullets.append(ListItem(Paragraph(enhanced_resp, self.styles['Normal'])))
-                elements.append(ListFlowable(bullets, bulletType='bullet', leftIndent=20))
-                elements.append(Spacer(1, 10))
+            num_experiences = len(experiences.get('company_name', []))
         
-        return elements
-
+        for i in range(num_experiences):
+            try:
+                company = experiences['company_name'][i]
+                position = experiences['position'][i]
+                dates = experiences['work_dates'][i]
+                description = experiences['work_description'][i]
+                
+                if not all([company, position, dates, description]):
+                    print(f"Skipping incomplete experience entry {i}")  # Debug print
+                    continue
+                
+                # Create company and position header
+                elements.append(Paragraph(f"<b>{position}</b>", self.styles['Normal']))
+                elements.append(Paragraph(company, self.styles['Normal']))
+                elements.append(Paragraph(dates, self.styles['Normal']))
+                
+                # Process description bullets
+                description_lines = description.split('\n')
+                bullets = []
+                
+                for line in description_lines:
+                    if line.strip():
+                        # Enhance each bullet point
+                        enhanced_bullet = self.enhance_bullet_points(line.strip(), position)
+                        bullets.append(ListItem(
+                            Paragraph(enhanced_bullet, self.styles['Normal'])
+                        ))
+                
+                if bullets:
+                    elements.append(ListFlowable(
+                        bullets,
+                        bulletType='bullet',
+                        leftIndent=20,
+                        bulletFontSize=8,
+                        bulletOffsetY=2
+                    ))
+                
+                # Add spacing between experiences
+                elements.append(Spacer(1, 15))
+                
+            except Exception as e:
+                print(f"Error processing experience entry {i}: {str(e)}")  # Debug print
+                continue
+            return elements
+            
     def _create_education_section(self, education):
         elements = []
         elements.append(Paragraph('Education', self.styles['SectionHeading']))
