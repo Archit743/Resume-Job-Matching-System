@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -57,7 +58,8 @@
             gap: 30px;
         }
 
-        .upload-section, .create-section {
+        .upload-section,
+        .create-section {
             background: #ffffff;
             padding: 30px;
             border-radius: 10px;
@@ -66,7 +68,8 @@
             transition: transform 0.3s ease;
         }
 
-        .upload-section:hover, .create-section:hover {
+        .upload-section:hover,
+        .create-section:hover {
             transform: translateY(-5px);
         }
 
@@ -119,6 +122,7 @@
         }
     </style>
 </head>
+
 <body>
     <header>
         <div class="container">
@@ -146,6 +150,17 @@
                         Browse Files
                     </button>
                 </div>
+                
+
+                <div id="previewContainer" style="display: none; text-align: center; margin-top: 20px;">
+                    <p><strong>Selected File:</strong> <span id="fileName"></span></p>
+                    <img id="imagePreview" style="max-width: 200px; display: none; margin-top: 10px;" />
+                    <button class="btn" onclick="changeFile()">Change File</button>
+                    <button class="btn" style="background: red;" onclick="cancelUpload()">Cancel</button>
+                    <br>
+                    <button class="btn" onclick="">Generate</button> 
+                </div>
+
                 <p class="accepted-formats">Accepted formats: PDF, JPG, PNG</p>
             </div>
 
@@ -162,6 +177,10 @@
     <script>
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
+        const previewContainer = document.getElementById('previewContainer');
+        const fileNameDisplay = document.getElementById('fileName');
+        const imagePreview = document.getElementById('imagePreview');
+        const cancelButton = document.getElementById('cancelButton');
 
         dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
@@ -184,28 +203,58 @@
         });
 
         function handleFiles(files) {
-        if (files.length > 0) {
-            const file = files[0];
-            const validTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+            if (files.length > 0) {
+                const file = files[0];
+                const validTypes = ['application/pdf', 'image/jpeg', 'image/png'];
 
-            if (validTypes.includes(file.type)) {
-                const formData = new FormData();
-                formData.append('file', file);
+                if (validTypes.includes(file.type)) {
 
-                fetch('/upload', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    alert(data.message);
-                })
-                .catch(error => console.error('Error:', error));
-            } else {
-                alert('Please upload a PDF or image file (JPG/PNG).');
+                    // ✅ Hide upload box when file is uploaded
+            dropZone.style.display = "none";
+
+                    fileNameDisplay.textContent = file.name;
+                    previewContainer.style.display = "block";
+
+                    // Preview image if applicable
+                    if (file.type.startsWith("image/")) {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            imagePreview.src = e.target.result;
+                            imagePreview.style.display = "block";
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        imagePreview.style.display = "none";
+                    }
+
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    fetch('/upload', {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            alert(data.message);
+                        })
+                        .catch(error => console.error('Error:', error));
+                } else {
+                    alert('Please upload a PDF or image file (JPG/PNG).');
+                }
             }
         }
-    }
+        
+        function changeFile() {
+            fileInput.click(); // Trigger file selection dialog again
+        }
+
+        function cancelUpload() {
+    fileInput.value = "";  // ✅ Reset file input
+    previewContainer.style.display = "none";  // ✅ Hide preview section
+    imagePreview.style.display = "none";  // ✅ Hide image preview
+    dropZone.style.display = "block";  // ✅ Show upload box again
+}
 
         function redirectToBuilder() {
             window.location.href = 'your-builder-page.html'; // Replace with your actual URL
@@ -217,4 +266,5 @@
         });
     </script>
 </body>
+
 </html>
