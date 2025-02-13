@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Results</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .min-h-screen {
+            min-height: 100vh;
+            background: linear-gradient(to bottom, #B2D8D8, white);
+            padding: 2rem;
+        }
+
+        .max-w-7xl {
+            max-width: 80rem;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 0;
+            left: 0;
+            color: #2A4747;
+            text-decoration: none;
+            font-size: 1.5rem;
+            transition: color 0.3s;
+        }
+
+        .close-button:hover {
+            color: #8EC3C3;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: #2A4747;
+            margin: 3rem 0 1.5rem;
+        }
+
+        /* Skills section */
+        .skills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .skill-tag {
+            display: inline-block;
+            padding: 0.25rem 1rem;
+            border-radius: 9999px;
+            background-color: #B2D8D8;
+            color: #2A4747;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .skill-tag:hover {
+            background-color: #8EC3C3;
+        }
+
+        /* Cards container */
+        .cards-container {
+            width: 100%;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+            scroll-behavior: smooth;
+        }
+
+        .cards-wrapper {
+            display: flex;
+            gap: 1rem;
+            min-width: min-content;
+        }
+
+        /* Job Card */
+        .job-card {
+            display: inline-block;
+            width: 300px;
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid #B2D8D8;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .job-card:hover {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transform: translateY(-0.25rem);
+        }
+
+        /* Certification Card */
+        .cert-card {
+            display: inline-block;
+            width: 300px;
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-top: 4px solid #B2D8D8;
+            transition: all 0.3s;
+        }
+
+        .cert-card:hover {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transform: translateY(-0.25rem);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            color: #2A4747;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-description {
+            color: #666;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+    -webkit-line-clamp: 3; /* For Safari & Chrome */
+    line-clamp: 3; /* Standard property */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+        .learn-more {
+            color: #B2D8D8;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .learn-more:hover {
+            color: #8EC3C3;
+        }
+
+        /* Scrollbar styling */
+        .cards-container {
+            scrollbar-width: thin;
+            scrollbar-color: #B2D8D8 transparent;
+        }
+
+        .cards-container::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .cards-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .cards-container::-webkit-scrollbar-thumb {
+            background-color: #B2D8D8;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen">
+        <div class="max-w-7xl">
+            <a href="/results-page" class="close-button">×</a>
+            
+            <h2 class="section-title">Your Top Skills</h2>
+            <div class="skills-container" id="skills-container"></div>
+
+            <h2 class="section-title">Recommended Jobs</h2>
+            <div class="cards-container">
+                <div class="cards-wrapper" id="jobs-container"></div>
+            </div>
+
+            <h2 class="section-title">Recommended Certifications</h2>
+            <div class="cards-container">
+                <div class="cards-wrapper" id="certs-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const skills = [
+            "JavaScript", "React", "UI/UX Design", "Node.js",
+            "Python", "Data Analysis", "Project Management", "Communication"
+        ];
+
+        const jobs = [
+            {
+                title: "Frontend Developer",
+                description: "Create responsive web applications using modern JavaScript frameworks and libraries. Strong focus on user experience and performance."
+            },
+            {
+                title: "Full Stack Engineer",
+                description: "Build and maintain web applications from database to UI. Experience with modern web technologies required."
+            },
+            {
+                title: "UX Designer",
+                description: "Design intuitive user interfaces and experiences for web and mobile applications. Collaborate with development team."
+            },
+            {
+                title: "Product Manager",
+                description: "Lead product development initiatives and coordinate between stakeholders. Define product strategy and roadmap."
+            }
+        ];
+
+        const certifications = [
+            {
+                title: "React Developer Certification",
+                description: "Master React.js and modern frontend development practices. Learn state management, hooks, and performance optimization."
+            },
+            {
+                title: "UI/UX Design Professional",
+                description: "Learn user-centered design principles, wireframing, prototyping, and user research methodologies."
+            },
+            {
+                title: "Full Stack Development",
+                description: "Comprehensive program covering both frontend and backend development with modern technologies."
+            },
+            {
+                title: "Agile Project Management",
+                description: "Learn to lead projects using Agile methodologies. Covers Scrum, Kanban, and other frameworks."
+            }
+        ];
+
+        function createSkillTag(skill) {
+            const div = document.createElement('div');
+            div.className = 'skill-tag';
+            div.textContent = skill;
+            return div;
+        }
+
+        function createJobCard(job) {
+            const div = document.createElement('div');
+            div.className = 'job-card';
+            div.innerHTML = `
+                <h3 class="card-title">${job.title}</h3>
+                <p class="card-description">${job.description}</p>
+            `;
+            return div;
+        }
+
+        function createCertCard(cert) {
+            const div = document.createElement('div');
+            div.className = 'cert-card';
+            div.innerHTML = `
+                <h3 class="card-title">${cert.title}</h3>
+                <p class="card-description">${cert.description}</p>
+                <a href="#" class="learn-more">Learn More</a>
+            `;
+            return div;
+        }
+
+        // Render skills
+        const skillsContainer = document.getElementById('skills-container');
+        skills.forEach(skill => {
+            skillsContainer.appendChild(createSkillTag(skill));
+        });
+
+        // Render jobs
+        const jobsContainer = document.getElementById('jobs-container');
+        jobs.forEach(job => {
+            jobsContainer.appendChild(createJobCard(job));
+        });
+
+        // Render certifications
+        const certsContainer = document.getElementById('certs-container');
+        certifications.forEach(cert => {
+            certsContainer.appendChild(createCertCard(cert));
+        });
+    </script>
+</body>
+</html>
