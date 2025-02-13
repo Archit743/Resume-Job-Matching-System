@@ -26,14 +26,17 @@
             position: relative;
         }
 
-        .close-button {
-            position: absolute;
-            top: 0;
-            left: 0;
-            color: #2A4747;
+
+        .back-button {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: #2A4747;
+            color: white;
             text-decoration: none;
-            font-size: 1.5rem;
-            transition: color 0.3s;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: background-color 0.3s;
+            margin-bottom: 2rem;
         }
 
         .close-button:hover {
@@ -166,7 +169,7 @@
 <body>
     <div class="min-h-screen">
         <div class="max-w-7xl">
-            <a href="/results-page" class="close-button">×</a>
+            <a href="/home" class="back-button">Back to Home</a>
             
             <h2 class="section-title">Your Top Skills</h2>
             <div class="skills-container" id="skills-container"></div>
@@ -184,46 +187,45 @@
     </div>
 
     <script>
-        const skills = [
-            "JavaScript", "React", "UI/UX Design", "Node.js",
-            "Python", "Data Analysis", "Project Management", "Communication"
+        const skills = ["", ""
+            
         ];
 
         const jobs = [
             {
-                title: "Frontend Developer",
-                description: "Create responsive web applications using modern JavaScript frameworks and libraries. Strong focus on user experience and performance."
+                title: "",
+                description: ""
             },
             {
-                title: "Full Stack Engineer",
-                description: "Build and maintain web applications from database to UI. Experience with modern web technologies required."
+                title: "",
+                description: ""
             },
             {
-                title: "UX Designer",
-                description: "Design intuitive user interfaces and experiences for web and mobile applications. Collaborate with development team."
+                title: "",
+                description: ""
             },
             {
-                title: "Product Manager",
-                description: "Lead product development initiatives and coordinate between stakeholders. Define product strategy and roadmap."
+                title: "",
+                description: ""
             }
         ];
 
         const certifications = [
             {
-                title: "React Developer Certification",
-                description: "Master React.js and modern frontend development practices. Learn state management, hooks, and performance optimization."
+                title: "",
+                description: ""
             },
             {
-                title: "UI/UX Design Professional",
-                description: "Learn user-centered design principles, wireframing, prototyping, and user research methodologies."
+                title: "",
+                description: ""
             },
             {
-                title: "Full Stack Development",
-                description: "Comprehensive program covering both frontend and backend development with modern technologies."
+                title: "",
+                description: ""
             },
             {
-                title: "Agile Project Management",
-                description: "Learn to lead projects using Agile methodologies. Covers Scrum, Kanban, and other frameworks."
+                title: "",
+                description: ""
             }
         ];
 

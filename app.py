@@ -1,7 +1,8 @@
 import io
 from flask import Flask, flash, jsonify, redirect, render_template, request, send_file, url_for
 from database.db import init_db, db
-from resume_generator_module import ResumeGenerator
+from resume_generator_module import ResumeGenerator, resume_generator_module_bp  # Fixed import
+
 from routes.auth import auth_bp
 from routes.main import main_bp
 from config import Config  # Import the Config class
@@ -24,6 +25,7 @@ init_db(app)
 # Register Blueprints (routes)
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(main_bp)
+app.register_blueprint(resume_generator_module_bp)
 
 app.secret_key = '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'
 
@@ -33,100 +35,39 @@ def build_resume():
 
 @app.route('/generate-resume', methods=['POST'])
 def generate_resume():
-    try:
-        # Collecting form data
-        resume_data = {
-            "personal_info": {
-                "name": request.form.get('name'),
-                "email": request.form.get('email'),
-                "phone": request.form.get('phone'),
-                "linkedin": request.form.get('linkedin'),
-                "location": request.form.get('location')
-            },
-            "professional_summary": request.form.get('professional_summary'),
-            "work_experience": [],
-            "education": [],
-            "skills": request.form.getlist('skills')
-        }
-
-        # Handle work experience (assuming it's sent as multiple entries)
-        work_experiences = zip(
-            request.form.getlist('company_name'),
-            request.form.getlist('position'),
-            request.form.getlist('work_dates'),
-            request.form.getlist('work_description')
-        )
-        
-        for company, position, dates, description in work_experiences:
-            if company and position:  # Only add if essential fields are present
-                resume_data["work_experience"].append({
-                    "company": company,
-                    "position": position,
-                    "dates": dates,
-                    "description": description
-                })
-
-        # Handle education entries
-        educations = zip(
-            request.form.getlist('institution'),
-            request.form.getlist('degree'),
-            request.form.getlist('education_dates'),
-            request.form.getlist('gpa')
-        )
-        
-        for institution, degree, dates, gpa in educations:
-            if institution and degree:  # Only add if essential fields are present
-                resume_data["education"].append({
-                    "institution": institution,
-                    "degree": degree,
-                    "dates": dates,
-                    "gpa": gpa
-                })
-
-        # Validate required fields
-        if not resume_data["personal_info"]["name"]:
-            flash("Please enter at least your name to generate a resume.", "error")
-            return redirect(url_for('build_resume'))
-
-        # Generate PDF
-        generator = ResumeGenerator()
-        pdf = generator.create_professional_pdf(resume_data)
-
-        # Create a BytesIO object to serve the PDF
-        pdf_buffer = io.BytesIO(pdf)
-        pdf_buffer.seek(0)
-
-        return send_file(
-            pdf_buffer,
-            download_name=f"{resume_data['personal_info']['name'].replace(' ', '_')}_professional_resume.pdf",
-            mimetype='application/pdf',
-            as_attachment=True
-        )
-
-    except Exception as e:
-        flash(f"Error generating PDF: {str(e)}", "error")
-        return redirect(url_for('build_resume'))
-
-@app.route('/upload-resume', methods=['POST'])
-def upload_resume():
-    if 'resume' not in request.files:
-        return jsonify({'error': 'No file uploaded'}), 400
+    resume_data = {
+        'personal_info': {
+            'name': request.form.get('name'),
+            'email': request.form.get('email'),
+            'phone': request.form.get('phone'),
+            'location': request.form.get('location'),
+            'linkedin': request.form.get('linkedin')
+        },
+        'summary': request.form.get('professional_summary'),
+        'work_experience': {
+            'company_name': request.form.getlist('company_name[]'),
+            'position': request.form.getlist('position[]'),
+            'work_dates': request.form.getlist('work_dates[]'),
+            'work_description': request.form.getlist('work_description[]')
+        },
+        'education': {
+            'institution': request.form.getlist('institution[]'),
+            'degree': request.form.getlist('degree[]'),
+            'education_dates': request.form.getlist('education_dates[]'),
+            'gpa': request.form.getlist('gpa[]')
+        },
+        'skills': request.form.get('skills', '').split(',')
+    }
     
-    file = request.files['resume']
-    if file.filename == '':
-        return jsonify({'error': 'No file selected'}), 400
+    generator = ResumeGenerator()
+    pdf = generator.create_professional_pdf(resume_data)
     
-    if file and allowed_file(file.filename):
-        # Process the uploaded resume
-        # Add your resume processing logic here
-        return jsonify({'message': 'Resume uploaded successfully'})
-    
-    return jsonify({'error': 'Invalid file type'}), 400
-
-def allowed_file(filename):
-    ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx'}
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
+    return send_file(
+        io.BytesIO(pdf),
+        mimetype='application/pdf',
+        as_attachment=True,
+        download_name='resume.pdf'
+    )
 
 
 @app.route('/upload', methods=['POST'])
@@ -147,6 +88,9 @@ def upload_file():
     uploaded_file_path = file_path  # Store file path in a static variable
 
     return jsonify({"message": f"File '{file.filename}' uploaded successfully!", "success": True})
+@app.route('/results')
+def results():
+    return render_template('results.html')
 
 
 if __name__ == "__main__":
