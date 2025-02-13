@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Build Your Resume</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Build Your Professional Resume</h1>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('generate_resume') }}" method="post">
+
+            <!-- Personal Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>Personal Information</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Full Name*</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="tel" class="form-control" name="phone">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">LinkedIn</label>
+                            <input type="url" class="form-control" name="linkedin">
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Location</label>
+                            <input type="text" class="form-control" name="location">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professional Summary -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>Professional Summary</h3>
+                </div>
+                <div class="card-body">
+                    <textarea class="form-control" name="professional_summary" rows="4"></textarea>
+                </div>
+            </div>
+
+            <!-- Work Experience -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3>Work Experience</h3>
+                    <button type="button" class="btn btn-secondary" onclick="addWorkExperience()">Add Experience</button>
+                </div>
+                <div class="card-body" id="work-experience-container">
+                    <div class="work-experience-entry mb-3">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Company Name</label>
+                                <input type="text" class="form-control" name="company_name">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Position</label>
+                                <input type="text" class="form-control" name="position">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Dates</label>
+                                <input type="text" class="form-control" name="work_dates">
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control" name="work_description" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Education -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3>Education</h3>
+                    <button type="button" class="btn btn-secondary" onclick="addEducation()">Add Education</button>
+                </div>
+                <div class="card-body" id="education-container">
+                    <div class="education-entry mb-3">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Institution</label>
+                                <input type="text" class="form-control" name="institution">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Degree</label>
+                                <input type="text" class="form-control" name="degree">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Dates</label>
+                                <input type="text" class="form-control" name="education_dates">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">GPA</label>
+                                <input type="text" class="form-control" name="gpa">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skills -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>Skills</h3>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <input type="text" class="form-control" name="skills" placeholder="Enter skills (comma-separated)">
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mb-5">
+                <button type="submit" class="btn btn-primary btn-lg">Generate Resume</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function addWorkExperience() {
+            const container = document.getElementById('work-experience-container');
+            const template = document.querySelector('.work-experience-entry').cloneNode(true);
+            
+            // Clear the input values
+            template.querySelectorAll('input, textarea').forEach(input => input.value = '');
+            
+            container.appendChild(template);
+        }
+
+        function addEducation() {
+            const container = document.getElementById('education-container');
+            const template = document.querySelector('.education-entry').cloneNode(true);
+            
+            // Clear the input values
+            template.querySelectorAll('input').forEach(input => input.value = '');
+            
+            container.appendChild(template);
+        }
+    </script>
+</body>
+</html>

@@ -1,143 +1,115 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auth Form</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f9fafb;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
+from flask import Flask, render_template, request, send_file, jsonify, flash, redirect, url_for
+from data import collect_resume_data  # Modify this import based on your data structure
+from modules.resume_generator_module import ResumeGenerator
+import os
+import io
+
+app = Flask(_name_)
+app.secret_key = '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'  # Required for flash messages
+
+@app.route('/')
+def home():
+    return render_template('home.html')
+
+@app.route('/build-resume')
+def build_resume():
+    return render_template('build_resume.html')
+
+@app.route('/generate-resume', methods=['POST'])
+def generate_resume():
+    try:
+        # Collecting form data
+        resume_data = {
+            "personal_info": {
+                "name": request.form.get('name'),
+                "email": request.form.get('email'),
+                "phone": request.form.get('phone'),
+                "linkedin": request.form.get('linkedin'),
+                "location": request.form.get('location')
+            },
+            "professional_summary": request.form.get('professional_summary'),
+            "work_experience": [],
+            "education": [],
+            "skills": request.form.getlist('skills')
         }
-        .container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
-            text-align: center;
-        }
-        .toggle-buttons {
-            display: flex;
-            margin-bottom: 15px;
-        }
-        .toggle-buttons button {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            cursor: pointer;
-        }
-        .toggle-buttons button.active {
-            background-color: #ddd;
-        }
-        input, button {
-            width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        button {
-            background-color: #007bff;
-            color: white;
-            cursor: pointer;
-        }
-        button:disabled {
-            background-color: #aaa;
-        }
-        .message {
-            margin-top: 10px;
-            font-size: 14px;
-        }
-        .error {
-            color: red;
-        }
-        .success {
-            color: green;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="toggle-buttons">
-            <button id="signInBtn" class="active">Sign In</button>
-            <button id="signUpBtn">Sign Up</button>
-        </div>
-        <form id="authForm">
-            <div id="nameField" style="display: none;">
-                <input type="text" id="name" name="name" placeholder="Enter your name">
-            </div>
-            <input type="email" id="email" name="email" placeholder="Enter your email" required>
-            <input type="password" id="password" name="password" placeholder="Enter your password" required>
-            <button type="submit" id="submitButton">Sign In</button>
-        </form>
-        <div id="message" class="message"></div>
-    </div>
+
+        # Handle work experience (assuming it's sent as multiple entries)
+        work_experiences = zip(
+            request.form.getlist('company_name'),
+            request.form.getlist('position'),
+            request.form.getlist('work_dates'),
+            request.form.getlist('work_description')
+        )
+        
+        for company, position, dates, description in work_experiences:
+            if company and position:  # Only add if essential fields are present
+                resume_data["work_experience"].append({
+                    "company": company,
+                    "position": position,
+                    "dates": dates,
+                    "description": description
+                })
+
+        # Handle education entries
+        educations = zip(
+            request.form.getlist('institution'),
+            request.form.getlist('degree'),
+            request.form.getlist('education_dates'),
+            request.form.getlist('gpa')
+        )
+        
+        for institution, degree, dates, gpa in educations:
+            if institution and degree:  # Only add if essential fields are present
+                resume_data["education"].append({
+                    "institution": institution,
+                    "degree": degree,
+                    "dates": dates,
+                    "gpa": gpa
+                })
+
+        # Validate required fields
+        if not resume_data["personal_info"]["name"]:
+            flash("Please enter at least your name to generate a resume.", "error")
+            return redirect(url_for('build_resume'))
+
+        # Generate PDF
+        generator = ResumeGenerator()
+        pdf = generator.create_professional_pdf(resume_data)
+
+        # Create a BytesIO object to serve the PDF
+        pdf_buffer = io.BytesIO(pdf)
+        pdf_buffer.seek(0)
+
+        return send_file(
+            pdf_buffer,
+            download_name=f"{resume_data['personal_info']['name'].replace(' ', '_')}_professional_resume.pdf",
+            mimetype='application/pdf',
+            as_attachment=True
+        )
+
+    except Exception as e:
+        flash(f"Error generating PDF: {str(e)}", "error")
+        return redirect(url_for('build_resume'))
+
+@app.route('/upload-resume', methods=['POST'])
+def upload_resume():
+    if 'resume' not in request.files:
+        return jsonify({'error': 'No file uploaded'}), 400
     
-    <script>
-        let isSignIn = true;
-        const signInBtn = document.getElementById("signInBtn");
-        const signUpBtn = document.getElementById("signUpBtn");
-        const nameField = document.getElementById("nameField");
-        const authForm = document.getElementById("authForm");
-        const submitButton = document.getElementById("submitButton");
-        const messageDiv = document.getElementById("message");
+    file = request.files['resume']
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+    
+    if file and allowed_file(file.filename):
+        # Process the uploaded resume
+        # Add your resume processing logic here
+        return jsonify({'message': 'Resume uploaded successfully'})
+    
+    return jsonify({'error': 'Invalid file type'}), 400
 
-        signInBtn.addEventListener("click", () => {
-            isSignIn = true;
-            nameField.style.display = "none";
-            submitButton.textContent = "Sign In";
-            signInBtn.classList.add("active");
-            signUpBtn.classList.remove("active");
-            messageDiv.textContent = "";
-        });
+def allowed_file(filename):
+    ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx'}
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-        signUpBtn.addEventListener("click", () => {
-            isSignIn = false;
-            nameField.style.display = "block";
-            submitButton.textContent = "Sign Up";
-            signUpBtn.classList.add("active");
-            signInBtn.classList.remove("active");
-            messageDiv.textContent = "";
-        });
-
-        authForm.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            messageDiv.textContent = "";
-            messageDiv.className = "message";
-            submitButton.disabled = true;
-            
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
-            const name = document.getElementById("name").value;
-            
-            try {
-                let url = isSignIn ? "/api/signin" : "/api/signup";
-                let body = isSignIn ? { email, password } : { name, email, password };
-                
-                let response = await fetch(url, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(body),
-                });
-                
-                if (!response.ok) throw new Error(isSignIn ? "Invalid credentials" : "Could not create account");
-                
-                messageDiv.textContent = isSignIn ? "Successfully signed in!" : "Account created successfully!";
-                messageDiv.classList.add("success");
-                setTimeout(() => window.location.href = "/", 1500);
-            } catch (err) {
-                messageDiv.textContent = err.message;
-                messageDiv.classList.add("error");
-            } finally {
-                submitButton.disabled = false;
-            }
-        });
-    </script>
-</body>
-</html>
+if _name_ == '_main_':
+    app.run(debug=True)
