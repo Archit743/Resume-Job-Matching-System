@@ -187,93 +187,84 @@
     </div>
 
     <script>
-        const skills = ["", ""
-            
-        ];
+        // Declare variables only once
+        // Declare variables only once
+const extract_skills = JSON.parse('{{ skills|tojson|safe }}' || '[]');
+const extract_jobs = JSON.parse('{{ jobs|tojson|safe }}' || '[]');
+const extract_certifications = JSON.parse('{{ certifications|tojson|safe }}' || '[]');
 
-        const jobs = [
-            {
-                title: "",
-                description: ""
-            },
-            {
-                title: "",
-                description: ""
-            },
-            {
-                title: "",
-                description: ""
-            },
-            {
-                title: "",
-                description: ""
-            }
-        ];
+function createSkillTag(skill) {
+    const div = document.createElement('div');
+    div.className = 'skill-tag';
+    div.textContent = skill;
+    return div;
+}
 
-        const certifications = [
-            {
-                title: "",
-                description: ""
-            },
-            {
-                title: "",
-                description: ""
-            },
-            {
-                title: "",
-                description: ""
-            },
-            {
-                title: "",
-                description: ""
-            }
-        ];
+function createJobCard(job) {
+    const div = document.createElement('div');
+    div.className = 'job-card';
+    div.innerHTML = `
+        <h3 class="card-title">${job}</h3>
+        <p class="card-description">${getJobDescription(job)}</p>
+    `;
+    return div;
+}
 
-        function createSkillTag(skill) {
-            const div = document.createElement('div');
-            div.className = 'skill-tag';
-            div.textContent = skill;
-            return div;
-        }
+function createCertCard(cert) {
+    const div = document.createElement('div');
+    div.className = 'cert-card';
+    div.innerHTML = `
+        <h3 class="card-title">${cert}</h3>
+        <p class="card-description">${getCertDescription(cert)}</p>
+        <a href="#" class="learn-more">Learn More</a>
+    `;
+    return div;
+}
 
-        function createJobCard(job) {
-            const div = document.createElement('div');
-            div.className = 'job-card';
-            div.innerHTML = `
-                <h3 class="card-title">${job.title}</h3>
-                <p class="card-description">${job.description}</p>
-            `;
-            return div;
-        }
+// Simple description generators
+function getJobDescription(jobTitle) {
+    const descriptions = {
+        "Python Developer": "Develop Python-based applications and services...",
+        "Data Engineer": "Design and maintain data infrastructure...",
+        "ML Engineer": "Build and deploy machine learning models...",
+        "Cloud Architect": "Design cloud infrastructure solutions..."
+    };
+    return descriptions[jobTitle] || "Exciting opportunity in your field of expertise.";
+}
 
-        function createCertCard(cert) {
-            const div = document.createElement('div');
-            div.className = 'cert-card';
-            div.innerHTML = `
-                <h3 class="card-title">${cert.title}</h3>
-                <p class="card-description">${cert.description}</p>
-                <a href="#" class="learn-more">Learn More</a>
-            `;
-            return div;
-        }
+function getCertDescription(certName) {
+    const descriptions = {
+        "PCAP (Python Institute)": "Professional certification in Python programming...",
+        "AWS Certified Developer": "Validate AWS cloud development skills...",
+        "TensorFlow Developer Certificate": "Prove your ML implementation skills..."
+    };
+    return descriptions[certName] || "Valuable certification to enhance your career prospects.";
+}
 
-        // Render skills
-        const skillsContainer = document.getElementById('skills-container');
-        skills.forEach(skill => {
-            skillsContainer.appendChild(createSkillTag(skill));
-        });
+// Render skills
+const skillsContainer = document.getElementById('skills-container');
 
-        // Render jobs
-        const jobsContainer = document.getElementById('jobs-container');
-        jobs.forEach(job => {
-            jobsContainer.appendChild(createJobCard(job));
-        });
+if (extract_skills.length > 0) {
+    extract_skills.forEach(skill => {
+        skillsContainer.appendChild(createSkillTag(skill));
+    });
+} else {
+    skillsContainer.innerHTML = "<p>No skills found.</p>";
+}
 
-        // Render certifications
-        const certsContainer = document.getElementById('certs-container');
-        certifications.forEach(cert => {
-            certsContainer.appendChild(createCertCard(cert));
-        });
+
+// Render jobs
+const jobsContainer = document.getElementById('jobs-container');
+extract_jobs.forEach(job => {
+    jobsContainer.appendChild(createJobCard(job));
+});
+
+// Render certifications
+const certsContainer = document.getElementById('certs-container');
+extract_certifications.forEach(cert => {
+    certsContainer.appendChild(createCertCard(cert));
+});
+
     </script>
-</body>
+    </body>
 </html>
